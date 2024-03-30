@@ -26,7 +26,6 @@ class Magma extends MagmaKernel{
            $classCommand = $magma->getProperty('command')->getDefaultValue();
            $userCommand = $this->parser($classCommand);
 
-
            if ($name == $userCommand['command']){
                if (count($userCommand['args']) > 0){
                    if (count($userCommand['args']) != count($command['args'])) throw new Exception('Cantidad de parametros invalidos');

@@ -5,7 +5,7 @@
     "require": {
         "srvclick/scurl": "^1.0"
     },
-    "license": "GNU",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Srvclick\\Magma4telegram\\": "src/"

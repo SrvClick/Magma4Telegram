@@ -13,7 +13,7 @@ class MagmaCommand{
      * @throws Exception
      */
     public function argument($argument){
-        if (!isset($this->params[$argument])) throw new Exception('Este argumento no exist');
+        if (!isset($this->params[$argument])) throw new Exception('Este argumento no existe');
         return $this->params[$argument];
     }
 }

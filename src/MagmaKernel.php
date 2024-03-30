@@ -3,7 +3,7 @@
 namespace Srvclick\Magma4telegram;
 
 class MagmaKernel{
-    protected array $magma = [
+    public static array $magma = [
 
     ];
 }

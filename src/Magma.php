@@ -20,11 +20,13 @@ class Magma extends MagmaKernel{
         $command = $this->parser($command);
         $name = $command['command'];
         $arg = [];
-       foreach ($this->magma as $class){
+       foreach (self::$magma as $class){
            try {
            $magma = new ReflectionClass($class);
-           $classCommand = $magma->getStaticPropertyValue('command');
+           $classCommand = $magma->getProperty('command')->getDefaultValue();
            $userCommand = $this->parser($classCommand);
+
+
            if ($name == $userCommand['command']){
                if (count($userCommand['args']) > 0){
                    if (count($userCommand['args']) != count($command['args'])) throw new Exception('Cantidad de parametros invalidos');

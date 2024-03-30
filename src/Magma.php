@@ -1,7 +1,7 @@
 <?php
 namespace Srvclick\Magma4telegram;
 
-use Srvclick\Magma4telegram\MagmaKernel;
+use ReflectionException;
 use Exception;
 use ReflectionClass;
 
@@ -13,8 +13,10 @@ use ReflectionClass;
  * @version: 1.0 BETA - 30/03/2024
  */
 class Magma extends MagmaKernel{
-    protected string $command;
 
+    /**
+     * @throws Exception
+     */
     public function __construct($command){
         if (!isset($command) or empty($command)) throw new Exception("Invalid Command");
         $command = $this->parser($command);
@@ -38,13 +40,14 @@ class Magma extends MagmaKernel{
                $app->handle();
                break;
              }
-           } catch (\ReflectionException $e) {
+           } catch (ReflectionException $e) {
                echo $e->getMessage();
            }
        }
 
     }
-    public function parser($command){
+    public function parser($command): array
+    {
         $parser = explode(" ",$command);
         $args = [];
         foreach ($parser as $arg){

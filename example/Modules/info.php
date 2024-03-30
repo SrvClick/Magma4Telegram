@@ -6,7 +6,11 @@ class info extends MagmaCommand{
     protected string $command = "/info {me}";
     public function handle(): void
     {
-        echo $this->argument('me');
+        try {
+            echo $this->argument('me');
+        } catch (Exception $e) {
+            echo $e->getMessage()."\n";
+        }
     }
 
 

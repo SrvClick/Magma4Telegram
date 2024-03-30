@@ -41,7 +41,6 @@
 /vendor/ramsey/collection/composer.json
 /vendor/ramsey/uuid/composer.json
 /vendor/srvclick/scurl/composer.json
-/composer.json
 /composer.lock
 /vendor/ramsey/collection/conventional-commits.json
 /vendor/srvclick/scurl/src/Srvclick/Scurl/CurlFilesManager.php

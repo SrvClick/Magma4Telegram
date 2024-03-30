@@ -1,0 +1,20 @@
+{
+    "name": "srvclick/magma4telegram",
+    "description": "Magma 4 Telegram",
+    "type": "library",
+    "require": {
+        "srvclick/scurl": "^1.0"
+    },
+    "license": "GNU",
+    "autoload": {
+        "psr-4": {
+            "Srvclick\\Magma4telegram\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "srvclick",
+            "email": "admin@srvclick.com"
+        }
+    ]
+}

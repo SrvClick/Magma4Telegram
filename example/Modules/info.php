@@ -2,12 +2,18 @@
 namespace Modules;
 use Srvclick\Magma4telegram\MagmaCommand;
 use Exception;
+
+use Srvclick\Magma4telegram\MagmaSend;
 class info extends MagmaCommand{
+    use MagmaSend;
     protected string $command = "/info {me}";
+    protected ?string $chatId = null;
     public function handle(): void
     {
         try {
-            echo $this->argument('me');
+            $this->MagmaSetBotToken('Telegram BOT TOKEN');
+            $response = $this->SendTelegramMessage("Hello World", $this->chatId);
+            $response->verbose();
         } catch (Exception $e) {
             echo $e->getMessage()."\n";
         }

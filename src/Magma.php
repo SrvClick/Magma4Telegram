@@ -18,12 +18,11 @@ class Magma extends MagmaKernel {
     /**
      * @throws Exception
      */
-    public function __construct(string $command) {
+    public function __construct(string $command, ?string $chatId = null) {
         if (empty($command)) throw new Exception("Comando inválido: el comando no puede estar vacío");
         $commandData = $this->parseCommand($command);
         if (!isset($commandData['commandName'])) throw new Exception("Comando inválido: no se pudo extraer el nombre del comando");
         if (!isset($commandData['args'])) throw new Exception("Comando inválido: no se pudieron extraer los argumentos");
-
         $commandName = $commandData['commandName'];
         $arguments = $commandData['args'];
         foreach (self::$magma as $class) {
@@ -39,14 +38,17 @@ class Magma extends MagmaKernel {
                     }
                     $app = $reflection->newInstance();
                     $app->setArguments($arguments);
+                    $reflection->getProperty('chatId')->setValue($app, $chatId);
                     $app->handle();
                     return;
                 }
             } catch (ReflectionException $e) {
+                throw new Exception($e->getMessage());
             }
         }
         throw new Exception("Comando no reconocido: $commandName");
     }
+
 
     /**
      * @throws ReflectionException

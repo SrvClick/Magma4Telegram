@@ -18,7 +18,19 @@ class Magma extends MagmaKernel {
     /**
      * @throws Exception
      */
-    public function __construct(string $command, ?string $chatId = null) {
+    public function __construct(?string $command = null, ?string $chatId = null) {
+
+        $package = json_decode(file_get_contents('php://input'),true);
+        if (!is_array($package)) throw new Exception("Empty Data");
+
+
+
+        if (!isset($package['message']['text'])) throw new Exception('No se localizo el comando');
+        if (!isset($package['message']['from']['id'])) throw new Exception('No se localizo el chatId');
+        $command = $package['message']['text'];
+        $chatId = $package['message']['chat']['id'];
+
+
         if (empty($command)) throw new Exception("Comando inválido: el comando no puede estar vacío");
         $commandData = $this->parseCommand($command);
         if (!isset($commandData['commandName'])) throw new Exception("Comando inválido: no se pudo extraer el nombre del comando");

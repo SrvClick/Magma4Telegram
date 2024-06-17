@@ -10,13 +10,8 @@ Magma::$magma = [
 ];
 
 try {
-    $update = json_decode(file_get_contents('php://input'),true);
-    if (!isset($update['message']['text'])) throw new Exception('No se localizo el comando');
-    if (!isset($update['message']['from']['id'])) throw new Exception('No se localizo el chatId');
-    $command = $update['message']['text'];
-    $chatId = $update['message']['chat']['id'];
 
-    $magma = new Magma($command,$chatId);
+    $magma = new Magma();
 }catch (Exception $exception){
     echo $exception->getMessage()."\n";
 }

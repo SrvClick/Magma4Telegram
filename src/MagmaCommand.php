@@ -6,7 +6,7 @@ use Exception;
  * @developer: zXero
  * @copyright: All copyright reserved
  * @contact: https://www.srvclick.com
- * @version: 1.0.1 BETA - 30/03/2024
+ * @version: 1.0.2 BETA - 30/03/2024
  */
 class MagmaCommand{
     public array $params = [];

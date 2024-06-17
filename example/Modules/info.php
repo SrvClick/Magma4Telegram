@@ -6,13 +6,13 @@ use Exception;
 use Srvclick\Magma4telegram\MagmaSend;
 class info extends MagmaCommand{
     use MagmaSend;
-    protected string $command = "/info {me}";
+    protected string $command = "/info {name}";
     protected ?string $chatId = null;
     public function handle(): void
     {
         try {
             $this->MagmaSetBotToken('Telegram BOT TOKEN');
-            $response = $this->SendTelegramMessage("Hello World", $this->chatId);
+            $response = $this->SendTelegramMessage("Hello ".$this->argument('name'), $this->chatId);
             $response->verbose();
         } catch (Exception $e) {
             echo $e->getMessage()."\n";

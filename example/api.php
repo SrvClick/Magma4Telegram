@@ -15,6 +15,7 @@ try {
     if (!isset($update['message']['from']['id'])) throw new Exception('No se localizo el chatId');
     $command = $update['message']['text'];
     $chatId = $update['message']['chat']['id'];
+
     $magma = new Magma($command,$chatId);
 }catch (Exception $exception){
     echo $exception->getMessage()."\n";

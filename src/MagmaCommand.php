@@ -1,7 +1,13 @@
 <?php
 namespace Srvclick\Magma4telegram;
 use Exception;
-
+/*
+ * @project: Magma for Telegram
+ * @developer: zXero
+ * @copyright: All copyright reserved
+ * @contact: https://www.srvclick.com
+ * @version: 1.0.1 BETA - 30/03/2024
+ */
 class MagmaCommand{
     public array $params = [];
     public function setArguments($argument): void

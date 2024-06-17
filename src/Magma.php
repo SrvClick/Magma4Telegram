@@ -10,7 +10,7 @@ use ReflectionClass;
  * @developer: zXero
  * @copyright: All copyright reserved
  * @contact: https://www.srvclick.com
- * @version: 1.0 BETA - 30/03/2024
+ * @version: 1.0.1 BETA - 30/03/2024
  */
 class Magma extends MagmaKernel {
     private static array $reflectionCache = [];

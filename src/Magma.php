@@ -14,12 +14,12 @@ use ReflectionClass;
  */
 class Magma extends MagmaKernel {
     private static array $reflectionCache = [];
-
+    private ?string $botToken = null;
     /**
      * @throws Exception
      */
-    public function __construct(?string $command = null, ?string $chatId = null) {
-
+    public function __construct(string $botToken = null) {
+        $this->botToken = $botToken;
         $package = json_decode(file_get_contents('php://input'),true);
         if (!is_array($package)) throw new Exception("Empty Data");
 
@@ -51,6 +51,7 @@ class Magma extends MagmaKernel {
                     $app = $reflection->newInstance();
                     $app->setArguments($arguments);
                     $reflection->getProperty('chatId')->setValue($app, $chatId);
+                    $app->MagmaSetBotToken($this->botToken);
                     $app->handle();
                     return;
                 }
@@ -58,7 +59,7 @@ class Magma extends MagmaKernel {
                 throw new Exception($e->getMessage());
             }
         }
-        throw new Exception("Comando no reconocido: $commandName");
+        throw new Exception("Comando no reconocido");
     }
 
 

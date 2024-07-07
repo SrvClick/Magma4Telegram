@@ -10,8 +10,9 @@ Magma::$magma = [
 ];
 
 try {
+    $botToken = 'Telegram BOT TOKEN';
+    $magma = new Magma($botToken);
 
-    $magma = new Magma();
 }catch (Exception $exception){
-    echo $exception->getMessage()."\n";
+    echo $exception->getMessage();
 }

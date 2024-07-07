@@ -11,13 +11,10 @@ class info extends MagmaCommand{
     public function handle(): void
     {
         try {
-            $this->MagmaSetBotToken('Telegram BOT TOKEN');
             $response = $this->SendTelegramMessage("Hello ".$this->argument('name'), $this->chatId);
             $response->verbose();
         } catch (Exception $e) {
             echo $e->getMessage()."\n";
         }
     }
-
-
 }

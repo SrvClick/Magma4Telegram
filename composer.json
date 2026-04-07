@@ -2,9 +2,6 @@
     "name": "srvclick/magma4telegram",
     "description": "Magma 4 Telegram",
     "type": "library",
-    "require": {
-        "srvclick/scurl": "^1.0"
-    },
     "license": "MIT",
     "autoload": {
         "psr-4": {
@@ -16,5 +13,8 @@
             "name": "srvclick",
             "email": "admin@srvclick.com"
         }
-    ]
+    ],
+    "require": {
+        "srvclick/scurlv2": "^1.1"
+    }
 }

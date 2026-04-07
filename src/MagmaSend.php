@@ -1,25 +1,139 @@
 <?php
 namespace Srvclick\Magma4telegram;
-use Srvclick\Scurl\Scurl_Request;
+use SrvClick\Scurlv2\Response;
+use SrvClick\Scurlv2\Scurl;
 use Exception;
 
 trait MagmaSend{
 
     private ?string $telegramBotUrl = null;
+    private ?string $messageId = null;
+
     public function MagmaSetBotToken($token): void
     {
         $this->telegramBotUrl = "https://api.telegram.org/bot".$token;
     }
+
+    public function getEndPoint(string $endpoint): string
+    {
+        return $this->telegramBotUrl."/".$endpoint;
+    }
+
+
     /**
      * @throws Exception
      */
-    public function SendTelegramMessage(?string $message = null, ?string $chatId = null): \Srvclick\Scurl\Response
+    public function editTelegramMessage(string $chatId, string $messageId, string $newMessage, string $parseMode = 'html'): Response
     {
-        if (empty($message) || empty($chatId)) throw new Exception('Missing message or telegram chatId');
-        if (empty($this->telegramBotUrl)) throw new Exception('Missing Telegram token');
-        $curl = new Scurl_Request();
-        $curl->setUrl($this->telegramBotUrl."/sendmessage?chat_id=".$chatId."&text=".urlencode($message)."&parse_mode=html" );
-        return $curl->Send();
+        if (empty($chatId) || empty($messageId) || empty($newMessage)) {
+            throw new Exception('Missing chatId, messageId or newMessage');
+        }
+
+        $data = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'text' => $newMessage,
+            'parse_mode' => $parseMode
+        ];
+
+        return $this->sendPostRequest('editMessageText', $data);
     }
 
+
+    /**
+     * @throws Exception
+     */
+
+    private function sendPostRequest(string $endpoint, array $data, bool $json = false): Response
+    {
+        $curl = new Scurl();
+        $curl->url($this->getEndPoint($endpoint));
+        if ($json) {
+            $curl->headers(['Content-Type: application/json']);
+            $curl->post()->parameters(json_encode($data));
+        } else {
+            $curl->post()->parameters($data);
+        }
+        $response = $curl->Send();
+
+        if ($response->isOk()){
+            $this->messageId = $response->json()['result']['message_id'];
+        }
+
+        return $response;
+    }
+    /**
+     * @throws Exception
+     */
+    public function sendTelegramMessage(string $chatId, ?string $message = null, string $parseMode = 'html', $replyMarkup = null): Response
+    {
+        if (empty($message) || empty($chatId)) {
+            throw new Exception('Missing message or telegram chatId');
+        }
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $message,
+            'parse_mode' => $parseMode
+        ];
+        if ($replyMarkup) {
+            $data['reply_markup'] = is_array($replyMarkup) ? json_encode($replyMarkup) : $replyMarkup;
+        }
+        return $this->sendPostRequest('sendMessage', $data);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function sendTelegramPhoto(string $chatId, string $photo, ?string $caption = null, string $parseMode = 'html'): Response
+    {
+        if (empty($chatId) || empty($photo)) {
+            throw new Exception('Missing chatId or photo');
+        }
+        $data = [
+            'chat_id' => $chatId,
+            'photo' => $photo,
+        ];
+        if ($caption !== null) {
+            $data['caption'] = $caption;
+            $data['parse_mode'] = $parseMode;
+        }
+        return $this->sendPostRequest('sendPhoto', $data);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function sendTelegramVideo(string $chatId, string $video, ?string $caption = null, string $parseMode = 'html'): Response
+    {
+        if (empty($chatId) || empty($video)) {
+            throw new Exception('Missing chatId or video');
+        }
+        $data = [
+            'chat_id' => $chatId,
+            'video' => $video,
+        ];
+        if ($caption !== null) {
+            $data['caption'] = $caption;
+            $data['parse_mode'] = $parseMode;
+        }
+        return $this->sendPostRequest('sendVideo', $data);
+    }
+    /**
+     * @throws Exception
+     */
+    public function sendTelegramDocument(string $chatId, string $document, ?string $caption = null, string $parseMode = 'html'): Response
+    {
+        if (empty($chatId) || empty($document)) {
+            throw new Exception('Missing chatId or document');
+        }
+        $data = [
+            'chat_id' => $chatId,
+            'document' => $document,
+        ];
+        if ($caption !== null) {
+            $data['caption'] = $caption;
+            $data['parse_mode'] = $parseMode;
+        }
+        return $this->sendPostRequest('sendDocument', $data);
+    }
 }

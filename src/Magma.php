@@ -5,51 +5,79 @@ use ReflectionException;
 use Exception;
 use ReflectionClass;
 
-/*
- * @project: Magma for Telegram
- * @developer: zXero
- * @copyright: All copyright reserved
- * @contact: https://www.srvclick.com
- * @version: 1.0.2 BETA - 30/03/2024
- */
-class Magma extends MagmaKernel {
+class Magma {
     private static array $reflectionCache = [];
-    private ?string $botToken = null;
+    private ?string $botToken;
+
+    public static array $magma = [];
+
     /**
      * @throws Exception
      */
-    public function __construct(string $botToken = null) {
+    public function __construct(string $botToken) {
         $this->botToken = $botToken;
-        $package = json_decode(file_get_contents('php://input'),true);
-        if (!is_array($package)) throw new Exception("Empty Data");
+        $request = new TelegramRequest();
+        $chatId = $request->getChatId();
+        $messageId = $request->getMessageId();
 
+        if (method_exists($request, 'isCallbackQuery') && $request->isCallbackQuery()) {
+            $callbackData = $request->getCallbackData();
 
+            foreach (self::$magma as $class) {
+                try {
+                    $reflection = $this->getCachedReflection($class);
+                    $defaultProps = $reflection->getDefaultProperties();
 
-        if (!isset($package['message']['text'])) throw new Exception('No se localizo el comando');
-        if (!isset($package['message']['from']['id'])) throw new Exception('No se localizo el chatId');
-        $command = $package['message']['text'];
-        $chatId = $package['message']['chat']['id'];
+                    if (isset($defaultProps['callbacks']) && isset($defaultProps['callbacks'][$callbackData])) {
+                        $methodToCall = $defaultProps['callbacks'][$callbackData];
+                        $app = $reflection->newInstance();
+                        $chatIdProp = $reflection->getProperty('chatId');
+                        $chatIdProp->setAccessible(true);
+                        $chatIdProp->setValue($app, $chatId);
+                        if ($reflection->hasProperty('incomingMessageId')) {
+                            $msgIdProp = $reflection->getProperty('incomingMessageId');
+                            $msgIdProp->setAccessible(true);
+                            $msgIdProp->setValue($app, $messageId);
+                        }
+                        $app->MagmaSetBotToken($this->botToken);
+                        if (method_exists($app, $methodToCall)) {
+                            try {
+                                $app->$methodToCall();
+                            } catch (\Throwable $e) {
+                                file_put_contents('error_log.txt', "Error: " . $e->getMessage());
+                            }
+                            return;
+                        }
+                    }
+                } catch (ReflectionException $e) {
+                    throw new Exception($e->getMessage());
+                }
+            }
+            return;
+        }
 
+        $command = trim($request->getCommand());
 
-        if (empty($command)) throw new Exception("Comando inválido: el comando no puede estar vacío");
-        $commandData = $this->parseCommand($command);
-        if (!isset($commandData['commandName'])) throw new Exception("Comando inválido: no se pudo extraer el nombre del comando");
-        if (!isset($commandData['args'])) throw new Exception("Comando inválido: no se pudieron extraer los argumentos");
-        $commandName = $commandData['commandName'];
-        $arguments = $commandData['args'];
+        $commandName = preg_split('/\s+/', $command)[0];
+
         foreach (self::$magma as $class) {
             try {
                 $reflection = $this->getCachedReflection($class);
                 $classCommand = $reflection->getProperty('command')->getDefaultValue();
                 $userCommand = $this->parseCommand($classCommand);
-
-                if ($commandName == $userCommand['commandName']) {
+                if ($commandName === $userCommand['commandName']) {
+                    $expectedArgsCount = count($userCommand['args']);
+                    $limit = $expectedArgsCount > 0 ? $expectedArgsCount + 1 : 1;
+                    $inputParts = preg_split('/\s+/', $command, $limit);
+                    array_shift($inputParts);
+                    $arguments = $inputParts;
                     $this->validateArguments($arguments, $userCommand['args']);
+                    $mappedArguments = [];
                     foreach ($userCommand['args'] as $index => $argName) {
-                        $arguments[$argName] = $arguments[$index];
+                        $mappedArguments[$argName] = $arguments[$index];
                     }
                     $app = $reflection->newInstance();
-                    $app->setArguments($arguments);
+                    $app->setArguments($mappedArguments);
                     $reflection->getProperty('chatId')->setValue($app, $chatId);
                     $app->MagmaSetBotToken($this->botToken);
                     $app->handle();
@@ -59,7 +87,7 @@ class Magma extends MagmaKernel {
                 throw new Exception($e->getMessage());
             }
         }
-        throw new Exception("Comando no reconocido");
+        throw new Exception("Command not found");
     }
 
 
@@ -75,11 +103,13 @@ class Magma extends MagmaKernel {
      * @throws Exception
      */
     private function validateArguments(array $providedArgs, array $expectedArgs): void {
-        if (count($providedArgs) != count($expectedArgs)) throw new Exception('Número de parámetros inválido');
+        if (count($providedArgs) !== count($expectedArgs)) {
+            throw new Exception('Invalid number of parameters');
+        }
     }
 
-    private function parseCommand(string $command): array {
-        $parts = explode(" ", $command);
+    private function parseCommand(string $commandTemplate): array {
+        $parts = preg_split('/\s+/', trim($commandTemplate));
         $commandName = array_shift($parts);
         $args = array_map(function($arg) {
             return trim($arg, '{}');

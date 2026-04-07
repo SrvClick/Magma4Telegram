@@ -1,20 +1,22 @@
 <?php
 namespace Modules;
+
 use Srvclick\Magma4telegram\MagmaCommand;
+use Srvclick\Magma4telegram\MagmaSend;
 use Exception;
 
-use Srvclick\Magma4telegram\MagmaSend;
-class info extends MagmaCommand{
+class info extends MagmaCommand {
     use MagmaSend;
+
     protected string $command = "/info {name}";
     protected ?string $chatId = null;
+
     public function handle(): void
     {
         try {
-            $response = $this->SendTelegramMessage("Hello ".$this->argument('name'), $this->chatId);
-            $response->verbose();
+            $this->sendTelegramMessage($this->chatId, "Hello " . $this->argument('name'));
         } catch (Exception $e) {
-            echo $e->getMessage()."\n";
+            echo $e->getMessage() . "\n";
         }
     }
 }
